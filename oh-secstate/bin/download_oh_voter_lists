@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+CURRENT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
+
+cd "$CURRENT_PATH"
+
+scrapy runspider ../scraper/voter_list_spider.py --loglevel WARNING
