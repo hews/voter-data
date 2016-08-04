@@ -1,8 +1,31 @@
 import scrapy
+import scrapy.loader
+import dateutil.parser as datep
 
-import dateutil.parser as date
+from scrapy.loader.processors import TakeFirst
 
 # TODO (PJ): fail if page doesn't load
+
+class VoterList(scrapy.Item):
+    state       = scrapy.Field(default='OH')
+    county      = scrapy.Field()
+    date        = scrapy.Field() # TODO (PJ): add a serializer to store this as datetime
+    list_format = scrapy.Field(default='SECSTATE')
+    url         = scrapy.Field()
+
+    def file_name(self):
+        return '-'.join((
+            self.get('state'),
+            self.get('county'),
+            self.get('date'),
+            self.get('list_format'),
+        )) + '.csv'
+
+
+class VoterListLoader(scrapy.loader.ItemLoader):
+    default_item_class       = VoterList
+    default_output_processor = TakeFirst()
+
 
 class VoterListSpider(scrapy.Spider):
     LOG_ENABLED = False
@@ -16,24 +39,32 @@ class VoterListSpider(scrapy.Spider):
     def parse(self, response):
         print('Parsing page at %s:' % response.url)
 
-        row_xps    = '//a[contains(., "Download")]/ancestor::tr[1]'
-        county_xps = '(.//td)[1]//text()'
-        date_xps   = '(.//td)[2]/text()'
-        url_xps    = './/a[contains(., "Download")]/@href'
+        row_xp = '//a[contains(., "Download")]/ancestor::tr[1]'
+        rows   = response.selector.xpath(row_xp)
+        length = len(rows)
 
-        for row in response.selector.xpath(row_xps):
-            county = row.xpath(county_xps).extract()[0]
-            date_  = row.xpath(date_xps).extract()[0]
-            url    = row.xpath(url_xps).extract()[0]
+        for index, row in enumerate(rows):
+            voter_list_loader = VoterListLoader(selector=row)
+            voter_list_loader.add_xpath('county', '(.//td)[1]//text()')
+            voter_list_loader.add_xpath('county', '(.//td)[2]/text()')
+            voter_list_loader.add_xpath('url',    './/a[contains(., "Download")]/@href')
 
-            self.download_list_file(county, date_, url)
+            # voter_list = VoterList(
+            #     state='OH',
+            #     county=county,
+            #     date=datep.parse(date).strftime('%Y%m%d'),
+            #     list_format='SECSTATE',
+            #     url=url
+            # )
+
+            print(voter_list_loader.load_item())
+            # self.download_list_file(index+1, length, voter_list)
 
 
-    def download_list_file(self, county, date_, url):
-        file_date = date.parse(date_).strftime('%Y%m%d')
-        file_name = 'OH-' + county + '-' + file_date
+    def download_list_file(self, index, length, voter_list):
 
-        print('    Downloading entry for %s at %s…' % (county, url))
+        print(voter_list)
+        # print('    Downloading entry (%i of %i) for %s at %s…' % (index, length, county, url))
         # yield scrapy.Request(url, self.download_and_unzip)
 
 
