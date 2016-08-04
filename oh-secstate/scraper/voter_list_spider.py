@@ -12,6 +12,7 @@ class VoterListSpider(scrapy.Spider):
 
     print('Loaded %s. Beginning to scrape…\n' % name)
 
+
     def parse(self, response):
         print('Parsing page at %s:' % response.url)
 
@@ -26,17 +27,20 @@ class VoterListSpider(scrapy.Spider):
             url    = row.xpath(url_xps).extract()[0]
 
             self.download_list_file(county, date_, url)
-            # yield scrapy.Request(response.urljoin(url), self.parse_titles)
+
 
     def download_list_file(self, county, date_, url):
-        file_name = 'OH-' + county + '.csv'
+        file_date = date.parse(date_).strftime('%Y%m%d')
+        file_name = 'OH-' + county + '-' + file_date
 
-        print('    Found entry %s, (%s): %s' % (county, date_, url))
-        print('    Name: %s\n' % file_name)
+        print('    Downloading entry for %s at %s…' % (county, url))
+        # yield scrapy.Request(url, self.download_and_unzip)
+
 
     # def parse_titles(self, response):
     #     for post_title in response.css('div.entries > ul > li a::text').extract():
     #         yield {'title': post_title}
+
 
     def closed(self, reason):
         if reason == 'finished':
