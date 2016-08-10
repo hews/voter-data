@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # TODO (PJ): figure out how to do this "pythonically", esp. Scrapy
+#   scrapy:       http://doc.scrapy.org/en/latest/topics/practices.html
 #   py version:   http://stackoverflow.com/a/446136
 #   requirements: http://stackoverflow.com/a/16298328
 #

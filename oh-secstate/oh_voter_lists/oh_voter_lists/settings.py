@@ -9,25 +9,41 @@ NEWSPIDER_MODULE = 'oh_voter_lists.spiders'
 
 # "Character: it's your responsibility"
 USER_AGENT     = 'oh_voter_lists scraper found at: (+http://github.com/hews/voter-data)'
-ROBOTSTXT_OBEY = True
 CONCURRENT_REQUESTS = 2
+
+# FIXME (PJ): this is set to keep Scrapy from requesting another
+#   robots.txt from the FTP server… Not because it fails to find
+#   one, but because it check the URI's scheme and send the
+#   correct headers/metadata in the request,
+#   ```
+#   Request(uri, meta={'ftp_user': 'anonymous', 'password': ''})
+#   ```
+#
+#   Check: https://github.com/scrapy/scrapy/blob/master/scrapy/downloadermiddlewares/robotstxt.py
+#
+# ROBOTSTXT_OBEY = True
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
-# See also autothrottle settings and docs
 DOWNLOAD_DELAY = 3
 CONCURRENT_REQUESTS_PER_DOMAIN = 2
 
 # File pipeline setup…
-
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 DATA_DIR    = os.path.abspath(os.path.join(CURRENT_DIR, '../..', 'data'))
 print('(File pipeline download target set to:)\n  %s' % DATA_DIR)
 
 ITEM_PIPELINES = {
-   'scrapy.pipelines.files.FilesPipeline': 1,
+   # Instead of the using the default: scrapy.pipelines.files.FilesPipeline,
+   #   must subclass it to send the necessary FTP headers/metadata
+   'oh_voter_lists.pipelines.VoterListPipeline': 1
 }
-FILES_STORE = DATA_DIR
+FILES_STORE        = DATA_DIR
+
+
+# XXX NOTE (PJ): leftovers from scaffolding, but since I can't find them
+#   as clearly in the docs, they are left for now.
+#
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html

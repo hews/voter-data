@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
+
 import scrapy
 
 from oh_voter_lists.items import VoterListItem, VoterListLoader
 
-class ExampleSpider(scrapy.Spider):
-    name = "example"
-    allowed_domains = ["example.com"]
-    start_urls = (
-        'http://www.example.com/',
-    )
-
-    def parse(self, response):
-        pass
 
 class VoterListsSpider(scrapy.Spider):
     LOG_ENABLED = False
@@ -30,31 +22,18 @@ class VoterListsSpider(scrapy.Spider):
         length = len(rows)
 
         for index, row in enumerate(rows):
-            if index == 0:
-                voter_list_loader = VoterListLoader(selector=row)
-                voter_list_loader.add_xpath('county',    '(.//td)[1]//text()')
-                voter_list_loader.add_xpath('date',      '(.//td)[2]/text()')
-                voter_list_loader.add_xpath('file_urls', './/a[contains(., "Download")]/@href')
+            voter_list_loader = VoterListLoader(selector=row)
 
-                voter_item = voter_list_loader.load_item()
+            voter_list_loader.add_xpath('county',      '(.//td)[1]//text()')
+            voter_list_loader.add_xpath('date',        '(.//td)[2]/text()')
+            voter_list_loader.add_xpath('file_url',    './/a[contains(., "Download")]/@href')
+            voter_list_loader.add_value('state',       'OH')
+            voter_list_loader.add_value('list_format', 'SECSTATE')
 
-                # self.download_list_file(index+1, length, voter_list)
+            voter_list_item = voter_list_loader.load_item()
+            print('  Found list for county:               %s' % voter_list_item['county'])
 
-                print(voter_item)
-                yield voter_item
-
-
-    def download_list_file(self, index, length, voter_list):
-
-        print(voter_list)
-        # print('    Downloading entry (%i of %i) for %s at %s…' % (index, length, county, url))
-        # yield scrapy.Request(url, self.download_and_unzip)
-
-
-    # def parse_titles(self, response):
-    #     for post_title in response.css('div.entries > ul > li a::text').extract():
-    #         yield {'title': post_title}
-
+            yield voter_list_item
 
     def closed(self, reason):
         if reason == 'finished':

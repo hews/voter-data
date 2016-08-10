@@ -6,7 +6,7 @@ import scrapy.loader.processors as scrapy_processors
 import dateutil.parser
 
 class VoterListItem(scrapy.Item):
-    state  = scrapy.Field() # TODO (PJ): default='OH' in pipeline
+    state  = scrapy.Field()
     county = scrapy.Field()
     date   = scrapy.Field(
         input_processor=scrapy_processors.MapCompose(dateutil.parser.parse),
@@ -15,18 +15,18 @@ class VoterListItem(scrapy.Item):
             lambda date: date.strftime('%Y%m%d')
         )
     )
-    list_format = scrapy.Field() # TODO (PJ): default='SECSTATE' in pipeline
-    file_urls   = scrapy.Field(output_processor=lambda file_urls: file_urls)
-    files       = scrapy.Field(output_processor=lambda files: files)
+    list_format = scrapy.Field()
+    file_url    = scrapy.Field()
+    file_data   = scrapy.Field()
 
 
-    # def file_name(self):
-    #     return '-'.join((
-    #         self.get('state'),
-    #         self.get('county'),
-    #         self.get('date'),
-    #         self.get('list_format'),
-    #     )) + '.csv'
+    def file_name(self):
+        return '-'.join((
+            self.get('state'),
+            self.get('county'),
+            self.get('date'),
+            self.get('list_format'),
+        )) + '.csv'
 
 
 class VoterListLoader(scrapy.loader.ItemLoader):
