@@ -1,7 +1,33 @@
 #!/usr/bin/env bash
 
+# TODO (PJ): figure out how to do this "pythonically", esp. Scrapy
+#   py version:   http://stackoverflow.com/a/446136
+#   requirements: http://stackoverflow.com/a/16298328
+#
+# QUESTION (PJ): virtualenv?
+#
+
+# Check for Python version
+PYTHON_VERSION=`python --version 2>&1 | sed "s/Python //"`
+
+# FIXME (PJ): Fail if not 2.7.x.
+# echo "Must use Python 2.7; Twisted has not ported the FTP package to Python 3."
+# exit 1
+
+# Check for requirements…
+PKG_LIST=`pip freeze`
+SCRAPY_VERSION=`echo "$PKG_LIST" | grep "Scrapy" | sed "s/Scrapy==//"`
+DATEUTIL=`echo "$PKG_LIST" | grep "python-dateutil"`
+
+# Install requirements if not installed…
+# echo "Installing Scrapy and other required packages…"
+# pip install -r requirements.txt
+
+# Go in to the scraper…
+SCRAPER_PROJECT_NAME="oh_voter_lists"
 CURRENT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 
-cd "$CURRENT_PATH"
+cd "$CURRENT_PATH/../$SCRAPER_PROJECT_NAME"
 
-scrapy runspider ../scraper/voter_list_spider.py --loglevel WARNING
+# Run the scraper
+scrapy crawl voter_lists --loglevel WARNING
