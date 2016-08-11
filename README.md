@@ -49,5 +49,5 @@ See the [Voter Lists README][voter-lists-readme] and the
 [dm]:  https://en.wikipedia.org/wiki/Data_mining#Data_mining
 [cep]: https://en.wikipedia.org/wiki/Complex_event_processing
 
-[voter-lists-readme]:  /voter-lists/README.md
-[demographics-readme]: /demographics/README.md
+[voter-lists-readme]:  /voter-lists
+[demographics-readme]: /demographics

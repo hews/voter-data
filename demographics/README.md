@@ -1,11 +1,11 @@
-# Demographics, Geaography and Political Data
+# Demographic, Geographic and Political Data
 
 … TBD
 
 ### Current
 
 - Political Data
-  - The 2014 [Cook Partisan Voting Index (**PVI**)][pvi] <super>1</super>
+  - The [2014 Cook Partisan Voting Index][pvi] (**PVI**) **<sup>1</sup>**
 
 ### Planned
 
@@ -28,7 +28,7 @@
 
 ##### Notes
 
-1.  [Original statement and files (cookpolitical.com).][pvi-2014]
+1.  Original statement and files: [cookpolitical.com][pvi-2014].
 
 <!-- LINKS -->
 
