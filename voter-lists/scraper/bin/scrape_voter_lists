@@ -25,10 +25,9 @@ DATEUTIL=`echo "$PKG_LIST" | grep "python-dateutil"`
 # pip install -r requirements.txt
 
 # Go in to the scraper…
-SCRAPER_PROJECT_NAME="oh_voter_lists"
 CURRENT_PATH=$( cd "$(dirname "${BASH_SOURCE}")" ; pwd -P )
 
-cd "$CURRENT_PATH/../$SCRAPER_PROJECT_NAME"
+cd "$CURRENT_PATH/../lib"
 
 # Run the scraper
 scrapy crawl voter_lists --loglevel WARNING

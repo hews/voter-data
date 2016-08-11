@@ -1,15 +1,16 @@
-# NE Ohio Voter Lists
-
-## Prepared in a purposefully mixed format
-
-![Map of Counties in NE Ohio](../assets/ne-ohio.svg)
+# Ohio Voter Lists
 
 ### Contents
 
-1. **[File Formats and Counties](#file-formats-and-counties)**
-2. **[Master Fields List](#master-fields-list)**
+1. **[NEOH Data File Formats and Counties](#northeast-ohio-neoh-mixed-format-data-files)**
+2. **[Master Ohio Voter List Data Scraper](#ohio-voter-list-data-scraper)**
+3. **[Master Fields List](#master-fields-list)**
 
 ---
+
+## Northeast Ohio (NEOH) Mixed Format Data Files
+
+![Map of Counties in NE Ohio](../assets/ne-ohio.png)
 
 ### File Formats and Counties
 
@@ -22,7 +23,7 @@
 
 #### VoterFind Files
 
-From each counties Board of Elections website, via 
+From each county's Board of Elections website, via 
 [ElectionsOnThe.net][eleconnet]
 
 This seems to be a custom-built service for Ohio counties, which some
@@ -53,7 +54,25 @@ From [the Ohio Secretary of State's website][secstate]:
 >
 > There is one record for every active voter registration.
 
-### Master Fields List
+### Summit County Board of Elections
+
+… TBD
+
+#### Cuyahoga County Board of Elections, by Subdivision
+
+http://boe.cuyahogacounty.us/en-US/citydownloads.aspx
+
+… TBD
+
+## Ohio Voter List Data Scraper
+
+How to scrape/download the lists:
+
+```
+$ ./scraper/bin/scrape_voter_lists
+```
+
+## Master Fields List
 
 While each field may be named or structured differently, they all 
 generally conform to this list. Some have fewer fields than others, and

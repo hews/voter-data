@@ -30,7 +30,7 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 2
 
 # File pipeline setup…
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-DATA_DIR    = os.path.abspath(os.path.join(CURRENT_DIR, '../..', 'data'))
+DATA_DIR    = os.path.abspath(os.path.join(CURRENT_DIR, '../../..', 'data'))
 print('(File pipeline download target set to:)\n  %s' % DATA_DIR)
 
 ITEM_PIPELINES = {
