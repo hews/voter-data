@@ -13,14 +13,15 @@
     - Census reports and breakdowns by age, race, gender, education, income
     - American communities survey
 - Geographic data
-    - GeoJSON / Shapefiles for political (state & federal) boundaries
-    - GeoJSON / Shapefiles for census tracts / ACS data
-    - GeoJSON / Shapefiles for counties, cities, towns and townships, etc.
+    - GeoJSON / Shapefiles for political boundaries: state, counties, etc.
+    - GeoJSON / Shapefiles for census entities: tracts / blocks, vtds
+    - GeoJSON / Shapefiles for media markets, regions
     - Street lists and proximity for walking data
 - Political data
     - Historical election outcomes: 2014, 2012, 2010, 2008
     - Polls (2016)
     - Issues
+    - Current representatives
 
 > ***And more as I think of them!***
 
