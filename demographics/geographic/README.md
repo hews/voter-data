@@ -141,6 +141,19 @@ Ohio Secretary of State "Readme" for Maps
 > For accurate population counts and visual representations of the plan at low levels
 > of geography, the user must have the geographic data files from the OCURD datasets.
 
+Block Equivalency File. For a plan to be posted, the member must provide to the
+Director of Geographic Information Systems (GIS) an electronic block equivalency
+file showing the district to which each census block has been assigned. The file
+must be either in dBASE format, such as an export file produced by Maptitude for
+Redistricting or Autobound, or in ASCII text format. 
+
+
+a list of "block-precincts" and their assigned / equivalent district…
+
+Ex.
+
+<BLOCKGEOID><VTDID>, DISTRICT
+
 <!-- 
 https://www.arcgis.com/home/item.html?id=5c1449de4d2b43658afc0937111de7da#overview
 
@@ -294,25 +307,26 @@ https://www.census.gov/geo/reference/ansi.html
 
 Ohio (OH): 39
 
-| County     | FIPS code |
-|------------|-----------|
-| Ashland    |  039005   |
-| Ashtabula  |  039007   |
-| Carroll    |  039019   |
-| Columbiana |  039029   |
-| Cuyahoga   |  039035   |
-| Geauga     |  039055   |
-| Lake       |  039085   |
-| Lorain     |  039093   |
-| Mahoning   |  039099   |
-| Medina     |  039103   |
-| Portage    |  039133   |
-| Richland   |  039139   |
-| Stark      |  039151   |
-| Summit     |  039153   |
-| Trumbull   |  039155   |
-| Wayne      |  039169   |
+| County     | FIPS code  |
+|------------|------------|
+| Ashland    | 039**005** |
+| Ashtabula  | 039**007** |
+| Carroll    | 039**019** |
+| Columbiana | 039**029** |
+| Cuyahoga   | 039**035** |
+| Geauga     | 039**055** |
+| Lake       | 039**085** |
+| Lorain     | 039**093** |
+| Mahoning   | 039**099** |
+| Medina     | 039**103** |
+| Portage    | 039**133** |
+| Richland   | 039**139** |
+| Stark      | 039**151** |
+| Summit     | 039**153** |
+| Trumbull   | 039**155** |
+| Wayne      | 039**169** |
 
+[To see the FIPS codes for every county, see Wikipedia.](https://en.wikipedia.org/wiki/List_of_counties_in_Ohio)
 
 #### Legislative Districts
 
@@ -367,6 +381,19 @@ Ohio (OH): 39
 * — SLDLs 70 & 95 (and their SLDUs) are only partly in NEOH.
 
 **OH Congressional Districts (CDs)**: 
+
+| District |     Counties     |
+|----------|------------------|
+|    04*   | Lorain           |
+|    06*   | Mahoning, Columbiana, Carroll |
+|    07*   | Lorain, Medina, Richland, Ashland, Stark |
+|    09*   | Lorain, Cuyahoga |
+|    11    | Cuyahoga, Summit |
+|    12*   | Richland         |
+|    13    | Summit, Portage, Trumbull, Mahoning |
+|    14    | Cuyahoga, Summit, Lake, Geauga, Portage, Ashtabula, Trumbull |
+|    16    | Cuyahoga, Medina, Summit, Wayne, Stark, Portage |
+
 
 <!-- LINKS -->
 

@@ -1,0 +1,224 @@
+#!/usr/bin/env python
+
+try:
+    import shapefile
+except:
+    print(
+        "Error: missing required package 'pyshp'.",
+        'See: https://pypi.python.org/pypi/pyshp#id4, or run:\n',
+        'pip install pyshp'
+    )
+    exit(1)
+
+import json
+import sys, os, glob, re
+
+from contextlib import contextmanager
+
+def main():
+    check_for_path()
+
+    identified_path = os.path.abspath(os.path.join(os.getcwd(), sys.argv[1]))
+
+    ensure_exists(identified_path)
+
+    # If is a .zip archive…
+    # TODO (PJ): treat like a vfs directory
+
+    # else is a directory…
+    ensure_is_directory(identified_path)
+    paths = expand_paths_at(identified_path)
+
+    # Create the Shapefile "reader"…
+    with files_from(paths) as files:
+        reader = shapefile.Reader(
+            shp=files['shape_format'],
+            dbf=files['attribute_format'],
+            shx=files['shape_index_format']
+        )
+
+        # Load data from files: attributes/properties (from .dbf) and
+        #   shape records / features (from .shp)
+        raw_properties_list = reader.fields[1:]
+        raw_shape_records   = reader.shapeRecords()
+
+    # Transform / clean the data from the Shapefile…
+    # http://geojson.org/geojson-spec.html
+    # https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+    #
+    # Parse, and normalize (make lower, change case, etc) property names…
+    prop_names = [normalize_properties(props) for props in raw_properties_list]
+
+    # Merge properties in to shape records using the GeoJSON format…
+    features = [feature_from(shape, prop_names) for shape in raw_shape_records]
+
+    # TODO (PJ): CRS / projection:
+    #   - read the current projection
+    #   - set the output projection, and
+    #   - transform if necessary
+
+    # TODO (PJ): bbox, ie bounding box:
+    #   - identify the furthest points
+    #   - determine a correct bbox value
+    #   - write the value to the collection?
+
+    # Wrap the features list in a feature collection w/ clear CRS…
+    #
+    # Set the collection level.
+    feature_collection = {'type': 'FeatureCollection'}
+    # TODO (PJ): Add the CRS for basic lat/long.
+    # feature_collection['crs'] = {
+    #     'type':       'name',
+    #     'properties': {'name': 'urn:ogc:def:crs:EPSG::4326'}
+    # }
+    # Add the features.
+    # feature_collection['features'] = json.dumps(features, skipkeys=True, ensure_ascii=False, default=attempt_decode)
+    feature_collection['features'] = features
+
+    # Convert to JSON and write the GeoJSON file.
+    with open("test.json", "w") as json_file:
+        json.dump(
+            feature_collection, json_file,
+            skipkeys=True, ensure_ascii=False
+        )
+
+    # print(feature_collection[0]['properties'])
+
+    exit()
+
+# TODO (PJ): stylin' profilin'
+STANDARD_STYLE = {
+    'color': '#dddddd'
+}
+
+
+def feature_from(shape_record, property_names):
+    shape_geometry = shape_record.shape.__geo_interface__
+    # Grab property values from record and merge with keys…
+    shape_properties = dict(zip(property_names, shape_record.record))
+
+    # Clean properties…
+    shape_properties = clean_properties(shape_properties)
+
+    # Add/set name and style properties…
+    # TODO (PJ): [<district_type> ]District <id>
+    shape_properties['name']  = 'District ' + str(shape_properties['id'])
+    shape_properties = \
+      {**shape_properties, **STANDARD_STYLE} # New merge syntax as of 3.5
+
+    # Move id from properties to feature itself…
+    feature_id = shape_properties['id']
+    del shape_properties['id']
+
+    return {
+        'type':       'Feature',
+        'id':         feature_id,
+        'properties': shape_properties,
+        'geometry':   shape_geometry,
+    }
+
+
+def clean_properties(in_props):
+    # Transform bytes to unicode strings.
+    # Remove empty values.
+    # Remove "id1" (if it exists).
+    cleaned_props = {}
+    for key, value in in_props.items():
+        if isinstance(value, bytes): value = value.decode('utf-8')
+        if not isinstance(value, str) or not value.isspace():
+            if key != 'id1': cleaned_props[key] = value
+
+    return cleaned_props
+
+
+def normalize_properties(fields):
+    prop_name = fields[0]
+    # prop_type = fields[1]
+    # prop_size = fields[2]
+
+    prop_name = prop_name.lower()
+    prop_name = re.sub( # snake_case to camelCase…
+        r'_\w',
+        lambda match: match.group(0)[-1].capitalize(),
+        prop_name
+    )
+
+    return prop_name
+
+
+@contextmanager
+def files_from(paths):
+    files = {}
+    try:
+        files = {name: open(path, 'rb') for name, path in paths.items()}
+        yield files
+    finally:
+        for name, file in files.items():
+            file.close()
+
+
+def check_for_path():
+    if len(sys.argv) < 2:
+        print('Error: you must pass the path to a folder holding the Shapefile.')
+        exit(1)
+
+
+def ensure_exists(path):
+    if not os.path.exists(path):
+        print('Error: path is invalid, it does not exist.\n%s' % path)
+        exit(1)
+
+
+def ensure_is_directory(path):
+    if not os.path.isdir(path):
+        print('Error: path is invalid, it is not a directory.\n%s' % path)
+        exit(1)
+
+
+def expand_paths_at(path):
+    paths = glob.glob(os.path.join(path, '*'))
+
+    shape_format       = [f for f in paths if ".shp" in f.lower()]
+    shape_index_format = [f for f in paths if ".shx" in f.lower()]
+    attribute_format   = [f for f in paths if ".dbf" in f.lower()]
+    projection_format  = [f for f in paths if ".prj" in f.lower()]
+
+    # XXX NOTE (PJ): Concerning the .shx file, see the pyshp docs:
+    #
+    # > Notice in the examples above the shx file is never used. The shx
+    # > file is a very simple fixed-record index for the variable length
+    # > records in the shp file. This file is optional for reading. If
+    # > it’s available pyshp will use the shx file to access shape
+    # > records a little faster but will do just fine without it.
+
+    if not any(shape_format) or not any(attribute_format):
+        print('Missing necessary file: .shp or .dbf')
+        exit(1)
+
+    return structure_paths(
+        shape_format,
+        shape_index_format,
+        attribute_format,
+        projection_format
+    )
+
+
+def structure_paths(shape_format, shape_index_format, attribute_format, projection_format):
+    files = {}
+    files['shape_format']       = shape_format[0]
+    files['attribute_format']   = attribute_format[0]
+    files['shape_index_format'] = shape_index_format[0] if any(shape_index_format) else None
+    files['projection_format']  = projection_format[0] if any(projection_format) else None
+
+    return files
+
+
+# def attempt_decode(item):
+#     try:
+#       return item.decode('utf-8')
+#     except:
+#       raise TypeError
+
+
+if __name__ == '__main__':
+    main()
