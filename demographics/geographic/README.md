@@ -46,6 +46,29 @@ been done may be unclear.
 
 …
 
+SECSTATE: geojson, equivalency files, formatted pdf/png maps
+CENSUS:   tract assignments, gazeteers, (blockgroup/tract/vtd geojson/shape? per county)
+
+GARM, other
+
+(county shapefiles/geojson?)
+
+Example:
+
+```
+./bin/convert_to_geojson --help
+./bin/convert_to_geojson shape.zip --dest-file ohio-cd-shapes.geojson --description "Ohio Congressional Districts"
+```
+
+<!--
+More examples:
+
+```
+./bin/convert_to_geojson house_shapefile_dir/ --description "Ohio General Assembly House Districts" 
+./bin/convert_to_geojson senate_shapefile.zip
+```
+-->
+
 #### Sources
 
 1.  [Census State Legislative District Reference Maps (Post 2010)][census-maps]
@@ -300,43 +323,38 @@ the Lake Erie coast. See the item 4 in Part A and the legal definition.
 
 -->
 
-#### ANSI/FIPS and GEOID codes
+### [ANSI/FIPS][fips] and [GEOID][geoid] codes, and District Numbers
 
-https://www.census.gov/geo/reference/geoidentifiers.html
-https://www.census.gov/geo/reference/ansi.html
+**The State of Ohio (OH) FIPS Code**: ***39***
 
-Ohio (OH): 39
+**Counties FIPS Codes in NE Ohio**:
 
 | County     | FIPS code  |
 |------------|------------|
-| Ashland    | 039**005** |
-| Ashtabula  | 039**007** |
-| Carroll    | 039**019** |
-| Columbiana | 039**029** |
-| Cuyahoga   | 039**035** |
-| Geauga     | 039**055** |
-| Lake       | 039**085** |
-| Lorain     | 039**093** |
-| Mahoning   | 039**099** |
-| Medina     | 039**103** |
-| Portage    | 039**133** |
-| Richland   | 039**139** |
-| Stark      | 039**151** |
-| Summit     | 039**153** |
-| Trumbull   | 039**155** |
-| Wayne      | 039**169** |
+| Ashland    | 039***005*** |
+| Ashtabula  | 039***007*** |
+| Carroll    | 039***019*** |
+| Columbiana | 039***029*** |
+| Cuyahoga   | 039***035*** |
+| Geauga     | 039***055*** |
+| Lake       | 039***085*** |
+| Lorain     | 039***093*** |
+| Mahoning   | 039***099*** |
+| Medina     | 039***103*** |
+| Portage    | 039***133*** |
+| Richland   | 039***139*** |
+| Stark      | 039***151*** |
+| Summit     | 039***153*** |
+| Trumbull   | 039***155*** |
+| Wayne      | 039***169*** |
 
-[To see the FIPS codes for every county, see Wikipedia.](https://en.wikipedia.org/wiki/List_of_counties_in_Ohio)
+[To see the FIPS codes for every county, see Wikipedia.][fips-oh-wiki]
 
-#### Legislative Districts
+**State General Assembly Districts (SLDUs & SLDLs) in NE Ohio**
 
-**OH Senate (SLDUs)**: 0013, 0018, 0021, 0022*, 0023, 0024, 0025, 0027, 
-0028, 0029, 0030*, 0032, 0033 (13)
-
-**OH House (SLDLs)**: 0001, 0002, 0005, 0006, 0007, 0008, 0009, 0010, 
-0011, 0012, 0013, 0014, 0015, 0016, 0034, 0035, 0036, 0037, 0038, 
-0048, 0049, 0050, 0055, 0056, 0057, 0058, 0059, 0060, 0061, 0063,
-0064, 0069, 0070*, 0075, 0076, 0095*, 0099 (7)
+> The identifiers ***SLDL*** and ***SLDU*** stand for 
+> *State Legislative District, Lower* (the House) and
+> *State Legislative District, Upper* (the Senate).
 
 | House | Senate | Counties |
 |-------|--------|----------|
@@ -378,9 +396,17 @@ Ohio (OH): 39
 |  95*  |   30*  | Carroll, *Harrison*, *Belmont*, *Noble*, *Washington* |
 |  99   |   32   | Ashtabula, Geauga |
 
-* — SLDLs 70 & 95 (and their SLDUs) are only partly in NEOH.
+<!-- 
+**OH Senate (SLDUs)**: 0013, 0018, 0021, 0022*, 0023, 0024, 0025, 0027, 
+0028, 0029, 0030*, 0032, 0033 (13)
 
-**OH Congressional Districts (CDs)**: 
+**OH House (SLDLs)**: 0001, 0002, 0005, 0006, 0007, 0008, 0009, 0010, 
+0011, 0012, 0013, 0014, 0015, 0016, 0034, 0035, 0036, 0037, 0038, 
+0048, 0049, 0050, 0055, 0056, 0057, 0058, 0059, 0060, 0061, 0063,
+0064, 0069, 0070*, 0075, 0076, 0095*, 0099 (7)
+-->
+
+**Congressional Districts (CDs) in NE Ohio**:
 
 | District |     Counties     |
 |----------|------------------|
@@ -394,8 +420,15 @@ Ohio (OH): 39
 |    14    | Cuyahoga, Summit, Lake, Geauga, Portage, Ashtabula, Trumbull |
 |    16    | Cuyahoga, Medina, Summit, Wayne, Stark, Portage |
 
+* — SLDLs 70 & 95, their SLDUs, and CDs 4, 6, 7, 9 & 12, are only 
+  *partly* in NEOH.
 
 <!-- LINKS -->
 
 [census-maps]: http://www.census.gov/geo/maps-data/maps/reference-sld.html
 [oh-secstate]: http://www.sos.state.oh.us/elections/candidates/district%20maps.aspx
+
+[geoid]: https://www.census.gov/geo/reference/geoidentifiers.html
+[fips]:  https://www.census.gov/geo/reference/ansi.html
+
+[fips-oh-wiki]: https://en.wikipedia.org/wiki/List_of_counties_in_Ohio

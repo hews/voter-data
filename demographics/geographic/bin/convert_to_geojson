@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+
+
+"""
+    Convert Esri Shapefiles from the Ohio Secretary of State in to
+    well-formated GeoJSON.
+
+    Assumptions are made about the format of the files — this has been
+    tested with the version of the files available in August of 2016 at:
+
+    http://www.sos.state.oh.us/elections/candidates/district%20maps.aspx
+
+    The GeoJSON is formatted according to the practices explained in the
+    specs below, and default to using CRS EPSG 4326 / OGCv1.3 CRS84.
+
+    http://geojson.org/geojson-spec.html
+    https://github.com/mapbox/simplestyle-spec/tree/master/1.1.0
+
+    :copyright: (c) Philip Hughes <p+nospam@hews.co>, 2015
+    :license:   MIT
+"""
+
+
+# Check for necessary package…
+try:
+    import shapefile
+except:
+    print(
+        "Error: missing required package 'pyshp'.",
+        'See: https://pypi.python.org/pypi/pyshp#id4, or run:\n',
+        'pip install pyshp'
+    )
+    exit(1)
+
+import argparse
+import zipfile
+import json
+import glob
+import sys
+import os
+import re
+import io
+
+from contextlib import contextmanager
+
+
+CURRENT_DIR = os.getcwd()
+
+# CRS_NAME = 'urn:ogc:def:crs:EPSG::4326' # Legacy format. Equivalent below.
+CRS_NAME = 'urn:ogc:def:crs:OGC:1.3:CRS84'
+
+# Colors!
+C_HEADER    = '\033[95m'
+C_BLUE      = '\033[94m'
+C_GREEN     = '\033[92m'
+C_WARNING   = '\033[93m'
+C_FAIL      = '\033[91m'
+C_END       = '\033[0m'
+C_BOLD      = '\033[1m'
+C_UNDERLINE = '\033[4m'
+
+def main():
+    source_path, description, dest_path = parse_command_line_arguments()
+    ensure_exists(source_path)
+
+    if zipfile.is_zipfile(source_path):
+        print('>> Identified source as zip archive…')
+
+        with zipfile.ZipFile(source_path) as archive:
+            paths = find_paths_in(archive.namelist())
+            # Extract each file-like object in to a byte stream…
+            files = {key: io.BytesIO(archive.read(path)) for key, path in paths.items()}
+
+            print('>> Reading the Shapefile(s)…')
+            raw_properties_list, raw_shape_records = read_shapefile(files)
+    else:
+        ensure_is_directory(source_path)
+
+        print('>> Identified source as directory…')
+        paths = find_paths_in(glob.glob(os.path.join(source_path, '*')))
+
+        with files_from(paths) as files:
+            print('>> Reading the Shapefile(s)…')
+            raw_properties_list, raw_shape_records = read_shapefile(files)
+
+    print('>> Transforming and cleaning Shapefile data…')
+    prop_names = [normalize_properties(props) for props in raw_properties_list]
+    features   = [build_feature_for(shape, prop_names, description) \
+      for shape in raw_shape_records]
+
+    # TODO (PJ): CRS / projection:
+    #   - read the current projection
+    #   - set the output projection, and
+    #   - transform if necessary
+
+    # TODO (PJ): bbox, ie bounding box:
+    #   - identify the furthest points
+    #   - determine a correct bbox value
+    #   - write the value to the collection?
+
+    # Wrap the features list in a feature collection w/ clear CRS…
+    feature_collection = build_collection_for(features)
+
+    # Convert to JSON and write the GeoJSON file.
+    with open(dest_path, 'w') as json_file:
+        json.dump(
+            feature_collection, json_file,
+            skipkeys=True, ensure_ascii=False
+        )
+    print('>> GeoJSON file written to:', C_GREEN, os.path.basename(dest_path), C_END)
+
+    exit(0)
+
+
+def parse_command_line_arguments():
+    # Define options…
+    description = (
+        'Convert Esri Shapefiles from the Ohio Secretary of State\n'
+        'in to well-formated GeoJSON.'
+    )
+    epilog = (
+        'Example:\n\n'
+        '$ ./bin/convert_to_geojson shape.zip --description "Ohio House Districts"\n'
+    )
+    parser = argparse.ArgumentParser(
+        description=description,
+        epilog=epilog,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    help_message = 'the source Shapefile as a Zip archive or directory'
+    source_parser = parser.add_mutually_exclusive_group(required=True)
+    source_parser.add_argument('--source-file', help=help_message)
+    source_parser.add_argument('source_file', nargs='?', help=help_message)
+
+    help_message = 'the descriptive name of the file contents'
+    parser.add_argument('--description', help=help_message, default='Districts')
+
+    help_message = 'the name of, and path to, the GeoJSON file'
+    parser.add_argument('--dest-file', help=help_message)
+
+    if not has_arguments():
+        parser.print_help()
+        exit(1)
+
+    args = parser.parse_args()
+
+    # Read options and handle…
+    source_path = os.path.abspath(os.path.join(CURRENT_DIR, args.source_file))
+
+    description = {
+        'default':  args.description,
+        'singular': args.description[:] if args.description[-1] != 's' else args.description[:-1],
+        'plural':   args.description[:] if args.description[-1] == 's' else args.description + 's',
+        'kebab':    args.description.lower().replace(' ', '-'),
+        'snake':    args.description.lower().replace(' ', '_')
+    }
+
+    if args.dest_file is None:
+        if args.description is not parser.get_default('description'):
+            dest_file = description['kebab']  + '.geojson'
+        else:
+            dest_file = os.path.basename(source_path.replace('.zip', '')) + '.geojson'
+    else:
+        dest_file = args.dest_file
+
+    dest_path = os.path.abspath(os.path.join(CURRENT_DIR, dest_file))
+
+    return (source_path, description, dest_path)
+
+
+def build_standard_style():
+    return {
+        'stroke': '#e0162b',
+        'fill':   '#0052a5'
+    }
+
+
+def build_feature_for(shape_record, property_names, description):
+    # Grab property values from record and merge with keys…
+    shape_properties = dict(zip(property_names, shape_record.record))
+
+    shape_properties = clean_properties(shape_properties)
+
+    shape_properties['name'] = \
+      description['singular'] + ' ' + str(shape_properties['id'])
+    shape_properties = \
+      {**shape_properties, **build_standard_style()} # New merge syntax as of 3.5
+
+    # Move id from properties to feature itself…
+    feature_id = shape_properties['id']
+    del shape_properties['id']
+
+    return {
+        'type':       'Feature',
+        'id':         feature_id,
+        'properties': shape_properties,
+        'geometry':   shape_record.shape.__geo_interface__,
+    }
+
+
+def build_collection_for(features):
+    return {
+        'type': 'FeatureCollection',
+        'crs': {
+            'type':       'name',
+            'properties': {'name': CRS_NAME}
+        },
+        'features': features
+    }
+
+
+def clean_properties(in_props):
+    # XXX NOTE (PJ): "More of an art than a science."" Fix any errors
+    # in the incoming data here.
+    #
+    # 1.  Transform bytes to unicode strings.
+    # 2.  Remove empty values.
+    # 3.  Remove "id1" (if it exists).
+    # 4.  Ensure "id" exists (used further on). Fallback to "district",
+    #     or finally "(unknown)".
+
+    cleaned_props = {}
+    for key, value in in_props.items():
+        if isinstance(value, bytes): value = value.decode('utf-8')
+        if not isinstance(value, str) or not value.isspace():
+            if key != 'id1': cleaned_props[key] = value
+
+    if in_props.get('id') is None:
+        if not in_props.get('district'):
+            cleaned_props['id'] = '(unknown)'
+        else:
+            cleaned_props['id'] = in_props['district']
+
+    return cleaned_props
+
+
+def normalize_properties(fields):
+    # 1.  Grab the name field alone, ignoring others.
+    # 2.  Ensure that it's camelCase, not mmixed or snake_case.
+    prop_name = fields[0]
+    # prop_type = fields[1]
+    # prop_size = fields[2]
+
+    prop_name = prop_name.lower()
+    prop_name = re.sub( # snake_case to camelCase…
+        r'_\w',
+        lambda match: match.group(0)[-1].capitalize(),
+        prop_name
+    )
+
+    return prop_name
+
+
+def find_paths_in(paths):
+    shape_format       = [f for f in paths if ".shp" in f.lower()]
+    shape_index_format = [f for f in paths if ".shx" in f.lower()]
+    attribute_format   = [f for f in paths if ".dbf" in f.lower()]
+    projection_format  = [f for f in paths if ".prj" in f.lower()]
+
+    # XXX NOTE (PJ): Concerning the .shx file, see the pyshp docs:
+    #
+    # > Notice in the examples above the shx file is never used. The shx
+    # > file is a very simple fixed-record index for the variable length
+    # > records in the shp file. This file is optional for reading. If
+    # > it’s available pyshp will use the shx file to access shape
+    # > records a little faster but will do just fine without it.
+
+    if not any(shape_format) or not any(attribute_format):
+        print('Missing necessary files or file-like objects: .shp and .dbf')
+        print('Only found: %s' % paths)
+        exit(1)
+
+    return structure_paths(
+        shape_format,
+        shape_index_format,
+        attribute_format,
+        projection_format
+    )
+
+
+# FIXME (PJ): so ugly sorry; rewrite and merge with above…
+def structure_paths(shape_format, shape_index_format, attribute_format, projection_format):
+    files = {}
+
+    files['shape_format']       = take_first_if_list(shape_format)
+    files['attribute_format']   = take_first_if_list(attribute_format)
+    files['shape_index_format'] = take_first_if_list(shape_index_format)
+    files['projection_format']  = take_first_if_list(projection_format)
+
+    return files
+
+
+def read_shapefile(files):
+    reader = shapefile.Reader(
+        shp=files['shape_format'],
+        dbf=files['attribute_format'],
+        shx=files['shape_index_format']
+    )
+
+    # Load data from files: attributes/properties (from .dbf) and
+    #   shape records / features (from .shp)
+    raw_properties_list = reader.fields[1:]
+    raw_shape_records   = reader.shapeRecords()
+    return (raw_properties_list, raw_shape_records)
+
+
+@contextmanager
+def files_from(paths):
+    files = {}
+    try:
+        files = {name: open(path, 'rb') for name, path in paths.items()}
+        yield files
+    finally:
+        for name, file in files.items():
+            file.close()
+
+
+def take_first_if_list(possible_list):
+    if any(possible_list) and isinstance(possible_list, list):
+        return possible_list[0]
+    else:
+        return possible_list
+
+
+def has_arguments():
+    return len(sys.argv) > 1
+
+
+def ensure_exists(path):
+    if not os.path.exists(path):
+        print(
+            'Error:', C_FAIL, 'path is invalid, it does not exist.', C_END,
+            '\n%s' % path
+        )
+        exit(1)
+
+
+def ensure_is_directory(path):
+    if not os.path.isdir(path):
+        print(
+            'Error:', C_FAIL, 'path is invalid, it is not a directory.', C_END,
+            '\n%s' % path
+        )
+        exit(1)
+
+
+if __name__ == '__main__':
+    main()
