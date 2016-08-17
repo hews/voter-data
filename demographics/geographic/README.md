@@ -1,8 +1,15 @@
-# Geographic Data
+# Geography
 
-<img src="maps/ohio-cd-map.jpg" width="500">
+<img src="maps/ohio-cd-map.jpg" width="400">
 
-### Included Data
+### Contents
+
+1.  [Included Data][#tbd]
+2.  [Data Sources & Cleaning Scripts][#tbd]
+3.  [Extra: Understanding US Census Geographic Entities][#tbd]
+4.  [Extra: ANSI/FIPS Codes, GEOID Codes, and District Numbers][#tbd]
+
+## Included Data
 
 …
 
@@ -35,7 +42,7 @@ the scripts included and discussed below.
 
 *Still, what cleaning may have been done may be unclear.* Deal. :sunglasses:
 
-### Sources
+## Sources
 
 1.  [Census State Legislative District Reference Maps (Post 2010)][census-maps]
 2.  [Ohio Secretary of State 2012-2022 District Maps][oh-secstate]
@@ -65,7 +72,9 @@ More examples:
 ```
 -->
 
-### Understanding US Census Geographic Entities
+---
+
+## Extra: Understanding US Census Geographic Entities
 
 ![](garm/GARM-geographic-heirarchy.png)
 
@@ -95,6 +104,8 @@ More examples:
 <!-- PUMAs: entities for which PUMS data is available. -->
 <!-- PUMS: publically available data from the ACS for allowed -->
 <!-- OHCD vs SLDU & SLDL -->
+
+<!--
 
 ~~~
 
@@ -192,7 +203,6 @@ Ex.
 
 <BLOCKGEOID><VTDID>, DISTRICT
 
-<!-- 
 https://www.arcgis.com/home/item.html?id=5c1449de4d2b43658afc0937111de7da#overview
 
 The district maps represents the results of the 2012-2022 apportionment plan
@@ -338,7 +348,7 @@ the Lake Erie coast. See the item 4 in Part A and the legal definition.
 
 -->
 
-### [ANSI/FIPS][fips] Codes, [GEOID][geoid] Codes, and District Numbers
+## Extra: [ANSI/FIPS][fips] Codes, [GEOID][geoid] Codes, and District Numbers
 
 #### The State of Ohio (OH) FIPS Code
 
