@@ -49,15 +49,12 @@ CURRENT_DIR = os.getcwd()
 # CRS_NAME = 'urn:ogc:def:crs:EPSG::4326' # Legacy format. Equivalent below.
 CRS_NAME = 'urn:ogc:def:crs:OGC:1.3:CRS84'
 
-# Colors!
-C_HEADER    = '\033[95m'
+# Terminal colors!
 C_BLUE      = '\033[94m'
 C_GREEN     = '\033[92m'
-C_WARNING   = '\033[93m'
 C_FAIL      = '\033[91m'
 C_END       = '\033[0m'
-C_BOLD      = '\033[1m'
-C_UNDERLINE = '\033[4m'
+
 
 def main():
     source_path, description, dest_path = parse_command_line_arguments()
