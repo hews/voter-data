@@ -4,22 +4,47 @@
 
 ### Contents
 
-1.  [Included Data][#tbd]
-2.  [Data Sources & Cleaning Scripts][#tbd]
-3.  [Extra: Understanding US Census Geographic Entities][#tbd]
-4.  [Extra: ANSI/FIPS Codes, GEOID Codes, and District Numbers][#tbd]
+1.  [Included Data](#tbd)
+2.  [Data Sources & Cleaning Scripts](#tbd)
+3.  [Extra: Understanding US Census Geographic Entities](#tbd)
+4.  [Extra: ANSI/FIPS Codes, GEOID Codes, and District Numbers](#tbd)
 
 ## Included Data
 
-…
+#### Embeddable and Reference Maps
 
-#### GARM Extracts (Census)
-#### Embed and Reference Maps (Ohio Sec. of State)
-#### Geography Lists (Census)
-#### Block Assignments (Census)
-#### Tract Assignments (Census)
-#### Geography Shapes (Ohio Sec. of State)
-#### Block Precinct Equivalencies (Ohio Sec. of State)
+Source: Ohio Secretary of State
+Available here.
+
+#### Geography Lists
+
+Source: Census
+Available here.
+
+#### Block Assignments
+
+Source: Census
+Available here.
+
+#### Tract Assignments
+
+Source: Census
+Available here.
+
+#### Geography Shapes
+
+Source: Ohio Secretary of State
+Available here.
+
+#### Block Precinct Equivalencies
+
+Source: Ohio Secretary of State
+Available here.
+
+#### GARM Extracts 
+
+Source: Census
+Available here.
 
 <!--
 Add?
@@ -28,7 +53,7 @@ Add?
 (county shapefiles/geojson?)
 -->
 
-#### Extent and format of included data
+### Extent and format of included data
 
 Stored here are ***only the districts contained (at least partially) within
 the reference area of NE Ohio***. In order to find the raw data for the
@@ -42,7 +67,7 @@ the scripts included and discussed below.
 
 *Still, what cleaning may have been done may be unclear.* Deal. :sunglasses:
 
-## Sources
+## Data Sources & Cleaning Scripts
 
 1.  [Census State Legislative District Reference Maps (Post 2010)][census-maps]
 2.  [Ohio Secretary of State 2012-2022 District Maps][oh-secstate]
