@@ -1,8 +1,73 @@
 # Geographic Data
 
-#### Geographic entities
+<img src="maps/ohio-cd-map.jpg" width="500">
 
-![](GARM-geographic-heirarchy.png)
+### Included Data
+
+…
+
+#### GARM Extracts (Census)
+#### Embed and Reference Maps (Ohio Sec. of State)
+#### Geography Lists (Census)
+#### Block Assignments (Census)
+#### Tract Assignments (Census)
+#### Geography Shapes (Ohio Sec. of State)
+#### Block Precinct Equivalencies (Ohio Sec. of State)
+
+<!--
+Add?
+
+(blockgroup/tract/vtd geojson/shape? per county)
+(county shapefiles/geojson?)
+-->
+
+#### Extent and format of included data
+
+Stored here are ***only the districts contained (at least partially) within
+the reference area of NE Ohio***. In order to find the raw data for the
+whole state, investigate the associated sources.
+
+***Note: the data contained here may not be the same as the sourced, raw data!***
+I ran all of the source data through an initial *data cleaning* pass in order
+to make it more sensible and easier to work with. I have included links to
+the sources for all data, and where major cleaning was undertaken
+the scripts included and discussed below.
+
+*Still, what cleaning may have been done may be unclear.* Deal. :sunglasses:
+
+### Sources
+
+1.  [Census State Legislative District Reference Maps (Post 2010)][census-maps]
+2.  [Ohio Secretary of State 2012-2022 District Maps][oh-secstate]
+3.  [Census Geographic Area Reference Manual (GARM)](https://www.census.gov/geo/reference/garm.html)
+4.  [Wikipedia American Community Survey definition](https://en.wikipedia.org/wiki/American_Community_Survey)
+5.  [American Community Survey](https://www.census.gov/programs-surveys/acs/)
+6.  [American FactFinder](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
+
+Ohio census block maps by county
+http://www.census.gov/geo/maps-data/maps/block/2010/county/dc10blk_st39_county.html
+
+#### Initial data cleaning scripts
+
+Example:
+
+```
+./bin/convert_to_geojson --help
+./bin/convert_to_geojson shape.zip --dest-file ohio-cd-shapes.geojson --description "Ohio Congressional Districts"
+```
+
+<!--
+More examples:
+
+```
+./bin/convert_to_geojson house_shapefile_dir/ --description "Ohio General Assembly House Districts" 
+./bin/convert_to_geojson senate_shapefile.zip
+```
+-->
+
+### Understanding US Census Geographic Entities
+
+![](garm/GARM-geographic-heirarchy.png)
 
 - **Census Geographic Area Reference Manual (GARM)**: created in 1990 (and 
   used since), the GARM describes the basic geographic entities the Census 
@@ -30,56 +95,6 @@
 <!-- PUMAs: entities for which PUMS data is available. -->
 <!-- PUMS: publically available data from the ACS for allowed -->
 <!-- OHCD vs SLDU & SLDL -->
-
-#### Extent of data
-
-Stored here are only the districts contained (at least partially) within
-the reference area of NE Ohio. In order to find the raw data for the
-whole state, investigate the associated sources.
-
-Note: the data given here may not be the same as the sourced raw data! 
-Sourced data may have gone through an initial data cleaning pass in order
-to make it more sensible and easier to work with. What work may have 
-been done may be unclear.
-
-#### Included data
-
-…
-
-SECSTATE: geojson, equivalency files, formatted pdf/png maps
-CENSUS:   tract assignments, gazeteers, (blockgroup/tract/vtd geojson/shape? per county)
-
-GARM, other
-
-(county shapefiles/geojson?)
-
-Example:
-
-```
-./bin/convert_to_geojson --help
-./bin/convert_to_geojson shape.zip --dest-file ohio-cd-shapes.geojson --description "Ohio Congressional Districts"
-```
-
-<!--
-More examples:
-
-```
-./bin/convert_to_geojson house_shapefile_dir/ --description "Ohio General Assembly House Districts" 
-./bin/convert_to_geojson senate_shapefile.zip
-```
--->
-
-#### Sources
-
-1.  [Census State Legislative District Reference Maps (Post 2010)][census-maps]
-2.  [Ohio Secretary of State 2012-2022 District Maps][oh-secstate]
-3.  [Census Geographic Area Reference Manual (GARM)](https://www.census.gov/geo/reference/garm.html)
-4.  [Wikipedia American Community Survey definition](https://en.wikipedia.org/wiki/American_Community_Survey)
-5.  [American Community Survey](https://www.census.gov/programs-surveys/acs/)
-6.  [American FactFinder](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
-
-Ohio census block maps by county
-http://www.census.gov/geo/maps-data/maps/block/2010/county/dc10blk_st39_county.html
 
 ~~~
 
@@ -323,11 +338,13 @@ the Lake Erie coast. See the item 4 in Part A and the legal definition.
 
 -->
 
-### [ANSI/FIPS][fips] and [GEOID][geoid] codes, and District Numbers
+### [ANSI/FIPS][fips] Codes, [GEOID][geoid] Codes, and District Numbers
 
-**The State of Ohio (OH) FIPS Code**: ***39***
+#### The State of Ohio (OH) FIPS Code
 
-**Counties FIPS Codes in NE Ohio**:
+***`39`***
+
+#### Counties FIPS Codes in NE Ohio
 
 | County     | FIPS code  |
 |------------|------------|
@@ -350,7 +367,7 @@ the Lake Erie coast. See the item 4 in Part A and the legal definition.
 
 [To see the FIPS codes for every county, see Wikipedia.][fips-oh-wiki]
 
-**State General Assembly Districts (SLDUs & SLDLs) in NE Ohio**
+#### State General Assembly Districts (SLDLs & SLDUs) in NE Ohio
 
 > The identifiers ***SLDL*** and ***SLDU*** stand for 
 > *State Legislative District, Lower* (the House) and
@@ -406,7 +423,7 @@ the Lake Erie coast. See the item 4 in Part A and the legal definition.
 0064, 0069, 0070*, 0075, 0076, 0095*, 0099 (7)
 -->
 
-**Congressional Districts (CDs) in NE Ohio**:
+#### Congressional Districts (CDs) in NE Ohio
 
 | District |     Counties     |
 |----------|------------------|
